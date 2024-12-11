@@ -144,6 +144,12 @@ class HelloBarPlugin {
             body.admin-bar .hello-bar-top {
                 top: 32px;
             }
+            .hello-bar-top {
+                top: 0px;
+            }
+            .hello-bar-footer {
+                bottom: 0px;
+            }
         </style>";
     }
 
@@ -162,7 +168,8 @@ class HelloBarPlugin {
         $cta_label = esc_html($settings['cta_label'] ?? 'Click Me');
         $cta_link = esc_url($settings['cta_link'] ?? '#');
         $message = esc_html($settings['message'] ?? 'This is your KISS Plugin Hello Bar message');
-        return "<div class='hello-bar {$class}'>
+        $admin_bar_offset = is_admin_bar_showing() && $class === 'hello-bar-top' ? ' style="top: 32px;"' : '';
+        return "<div class='hello-bar {$class}'{$admin_bar_offset}>
             <span>{$message}</span>
             <a href='{$cta_link}' class='cta-button'>{$cta_label}</a>
         </div>";
