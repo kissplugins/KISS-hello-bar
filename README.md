@@ -59,10 +59,10 @@ On the settings page, you'll see two columns for easy navigation of options.
 - Any changes made in the settings are applied site-wide immediately after saving.
 - If you encounter any issues, deactivate and reactivate the plugin to reset the settings to defaults.
 
-
+---
 
 **Road Map**
-Instructions coming soon
+Coming soon
 
 **Questions & Customization Requests**
 Contact Us: devops@kissplugins.com | noel@kissplugins.com
