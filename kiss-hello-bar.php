@@ -18,7 +18,8 @@ class HelloBarPlugin {
         add_action('admin_menu', [$this, 'create_settings_page']);
         add_action('admin_init', [$this, 'register_settings']);
         add_action('wp_head', [$this, 'enqueue_hello_bar_styles']);
-        add_action('wp_footer', [$this, 'display_hello_bar']);
+        add_action('wp_body_open', [$this, 'display_hello_bar']);
+        add_action('wp_footer', [$this, 'display_footer_hello_bar']);
         add_filter('plugin_action_links_' . plugin_basename(__FILE__), [$this, 'add_settings_link']);
     }
 
@@ -125,13 +126,13 @@ class HelloBarPlugin {
         $cta_contrast = $this->get_contrast_color($settings['cta_color'] ?? '#0000ff');
         echo "<style>
             .hello-bar {
-                position: fixed;
                 width: 100%;
+                position:sticky;
                 background-color: {$settings['bg_color']};
                 color: {$contrast_color};
                 text-align: center;
                 padding: 10px;
-                z-index: 1000;
+                z-index: 4;
             }
             .hello-bar .cta-button {
                 background-color: {$settings['cta_color']};
@@ -158,6 +159,13 @@ class HelloBarPlugin {
         if (!empty($settings['display_top'])) {
             echo $this->get_hello_bar_html('hello-bar-top');
         }
+        // if (!empty($settings['display_footer'])) {
+        //     echo $this->get_hello_bar_html('hello-bar-footer');
+        // }
+    }
+
+    public function display_footer_hello_bar() {
+        $settings = get_option(self::OPTION_NAME, []);
         if (!empty($settings['display_footer'])) {
             echo $this->get_hello_bar_html('hello-bar-footer');
         }
