@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: KISS Hello Bar Plugin
+ * Plugin Name: KISS - Hello Bar
  * Description: Displays a customizable hello bar with a message and a CTA button on the front end.
  * Version: 1.0.7
  * Author: Hypercart
