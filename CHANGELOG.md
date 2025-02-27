@@ -1,5 +1,8 @@
 # Changelog for KISS Hello Bar Plugin
 
+## Version 1.0.8 (2024-12-24)
+* **New Feature:** Added a new plugin update checker feature.
+
 ## Version 1.0.7 (2024-12-13)
 * **New Feature:** Added a new option to display the hello bar on mobile devices.
 * **Bug Fix:** Resolved an issue where the CTA button link wasn't working correctly in certain cases.
