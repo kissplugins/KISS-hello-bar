@@ -2,14 +2,26 @@
 /**
  * Plugin Name: KISS - Hello Bar
  * Description: Displays a customizable hello bar with a message and a CTA button on the front end.
- * Version: 1.0.7
+ * Version: 1.0.8
  * Author: Hypercart
  * Author URI: https://kissplugins.com
+ * Text Domain: kiss-hello-bar
  */
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly.
 }
+
+// Include the Plugin Update Checker
+require plugin_dir_path(__FILE__) . 'lib/plugin-update-checker/plugin-update-checker.php';
+use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
+$myUpdateChecker = PucFactory::buildUpdateChecker(
+    'https://github.com/kissplugins/KISS-hello-bar',
+    __FILE__,
+    'kiss-hello-bar'
+);
+// Optional: Set the branch that contains the stable release.
+$myUpdateChecker->setBranch('main');
 
 class HelloBarPlugin {
     const OPTION_NAME = 'hello_bar_settings';
