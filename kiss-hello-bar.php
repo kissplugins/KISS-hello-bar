@@ -229,9 +229,10 @@ class HelloBarPlugin {
     }
 
     public function create_settings_page() {
-        add_options_page(
+        add_submenu_page(
+            'edit.php?post_type=hello_bar',
             'Hello Bar Settings',
-            'Hello Bar',
+            'Settings',
             'manage_options',
             'hello-bar-settings',
             [$this, 'settings_page_content']
