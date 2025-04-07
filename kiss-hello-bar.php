@@ -2,7 +2,7 @@
 /**
  * Plugin Name: KISS - Hello Bar
  * Description: Displays a customizable hello bar with a message and a CTA button on the front end.
- * Version: 1.0.8
+ * Version: 1.0.9
  * Author: Hypercart
  * Author URI: https://kissplugins.com
  * Text Domain: kiss-hello-bar
@@ -32,7 +32,7 @@ class HelloBarPlugin {
         add_action('admin_menu', [$this, 'create_settings_page']);
         add_action('admin_init', [$this, 'register_settings']);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_hello_bar_scripts']);
-        add_action('wp_body_open', [$this, 'display_hello_bar_slider']);
+        add_action('wp_head', [$this, 'display_hello_bar_slider']);
         add_action('wp_footer', [$this, 'display_footer_hello_bar_slider']);
         add_filter('plugin_action_links_' . plugin_basename(__FILE__), [$this, 'add_settings_link']);
         add_action('add_meta_boxes', [$this, 'add_hello_bar_meta_box']);
@@ -148,7 +148,7 @@ class HelloBarPlugin {
         $cpt_hello_bar_inline_css = "
             .hello-bar { background-color: {$bg_color}; color: {$contrast_color}; }
             .hello-bar .cta-button { background-color: {$cta_color}; color: {$cta_contrast}; }
-            .swiper-button-next, .swiper-button-prev, .swiper-button-next-footer, .swiper-button-prev-footer { color: {$contrast_color};}
+            .hello-bar-slider .swiper-button-next, .hello-bar-slider .swiper-button-prev, .hello-bar-slider .swiper-button-next-footer, .hello-bar-slider .swiper-button-prev-footer { color: {$contrast_color};}
         ";
         wp_add_inline_style('cpt-hello-bar-css', $cpt_hello_bar_inline_css);
     }
