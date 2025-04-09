@@ -82,8 +82,12 @@ class HelloBarPlugin {
         ?>
         <table class="form-table">
             <tr>
-                <th><label for="message">Message</label></th>
-                <td><input type="text" name="hello_bar_settings[message]" id="message" value="<?php echo esc_attr($meta['message'] ?? 'Default Message'); ?>" class="regular-text"></td>
+                <th><label for="message_desktop">Desktop Message</label></th>
+                <td><input type="text" name="hello_bar_settings[message_desktop]" id="message_desktop" value="<?php echo esc_attr($meta['message_desktop'] ?? 'Default Desktop Message'); ?>" class="regular-text"></td>
+            </tr>
+            <tr>
+                <th><label for="message_mobile">Mobile Message</label></th>
+                <td><input type="text" name="hello_bar_settings[message_mobile]" id="message_mobile" value="<?php echo esc_attr($meta['message_mobile'] ?? 'Default Mobile Message'); ?>" class="regular-text"></td>
             </tr>
             <tr>
                 <th><label for="cta_label">CTA Button Label</label></th>
@@ -93,8 +97,15 @@ class HelloBarPlugin {
                 <th><label for="cta_link">CTA Button Link</label></th>
                 <td><input type="url" name="hello_bar_settings[cta_link]" id="cta_link" value="<?php echo esc_attr($meta['cta_link'] ?? ''); ?>" class="regular-text"></td>
             </tr>
+            <tr>
+                <th><label for="bg_color">Background Color</label></th>
+                <td><input type="color" name="hello_bar_settings[bg_color]" id="bg_color" value="<?php echo esc_attr($meta['bg_color'] ?? '#000000'); ?>"></td>
+            </tr>
+            <tr>
+                <th><label for="cta_color">CTA Button Color</label></th>
+                <td><input type="color" name="hello_bar_settings[cta_color]" id="cta_color" value="<?php echo esc_attr($meta['cta_color'] ?? '#0000ff'); ?>"></td>
+            </tr>
         </table>
-        <p><em>Display options and colors are managed globally under "Settings > Hello Bar".</em></p>
         <?php
     }
 
@@ -111,9 +122,12 @@ class HelloBarPlugin {
 
         $input = $_POST['hello_bar_settings'] ?? [];
         $output = [
-            'message' => sanitize_text_field($input['message']),
+            'message_desktop' => sanitize_textarea_field($input['message_desktop']),
+            'message_mobile' => sanitize_textarea_field($input['message_mobile']),
             'cta_label' => sanitize_text_field($input['cta_label']),
             'cta_link' => esc_url_raw($input['cta_link']),
+            'cta_color' => esc_url_raw($input['cta_color']),
+            'bg_color' => esc_url_raw($input['bg_color']),
         ];
         update_post_meta($post_id, '_hello_bar_settings', $output);
     }
@@ -139,18 +153,6 @@ class HelloBarPlugin {
         wp_enqueue_style('cpt-hello-bar-css', plugin_dir_url(__FILE__)  . '/assets/css/cpt-hello-bar.css');
         wp_enqueue_script('cpt-hello-bar-js', plugin_dir_url(__FILE__) . '/assets/js/cpt-hello-bar.js', array('hello-bar-swiper-js'), null, true);
 
-        $global_settings = get_option(self::OPTION_NAME, []);
-        $bg_color = $global_settings['bg_color'] ?? '#000000';
-        $cta_color = $global_settings['cta_color'] ?? '#0000ff';
-        $contrast_color = $this->get_contrast_color($bg_color);
-        $cta_contrast = $this->get_contrast_color($cta_color);
-
-        $cpt_hello_bar_inline_css = "
-            .hello-bar { background-color: {$bg_color}; color: {$contrast_color}; }
-            .hello-bar .cta-button { background-color: {$cta_color}; color: {$cta_contrast}; }
-            .hello-bar-slider .swiper-button-next, .hello-bar-slider .swiper-button-prev, .hello-bar-slider .swiper-button-next-footer, .hello-bar-slider .swiper-button-prev-footer { color: {$contrast_color};}
-        ";
-        wp_add_inline_style('cpt-hello-bar-css', $cpt_hello_bar_inline_css);
     }
 
     public function display_hello_bar_slider() {
@@ -208,17 +210,18 @@ class HelloBarPlugin {
     }
 
     private function get_hello_bar_html($settings, $class) {
-        $global_settings = get_option(self::OPTION_NAME, []);
-        $bg_color = $global_settings['bg_color'] ?? '#000000';
-        $cta_color = $global_settings['cta_color'] ?? '#0000ff';
+        //$global_settings = get_option(self::OPTION_NAME, []);
+        $bg_color = $settings['bg_color'] ?? '#000000';
+        $cta_color = $settings['cta_color'] ?? '#0000ff';
         $contrast_color = $this->get_contrast_color($bg_color);
         $cta_contrast = $this->get_contrast_color($cta_color);
 
         $cta_label = esc_html($settings['cta_label'] ?? 'Click Me');
         $cta_link = esc_url($settings['cta_link'] ?? '#');
-        $message = esc_html($settings['message'] ?? 'Default Message');
+        $message_desktop = esc_html($settings['message_desktop'] ?? 'Default Desktop Message');
+        $message_mobile = esc_html($settings['message_mobile'] ?? 'Default Mobile Message');
 
-        return "<div class='{$class}'><span>{$message}</span><a href='{$cta_link}' class='cta-button'>{$cta_label}</a></div>";
+        return "<div class='{$class}' style='background-color: {$bg_color}; color: {$contrast_color}'><span class='hello-bar-desktop'>{$message_desktop}</span><span class='hello-bar-mobile'>{$message_mobile}</span><a href='{$cta_link}' class='cta-button' style=' background-color: {$cta_color}; color: {$cta_contrast};'>{$cta_label}</a></div>";
     }
 
     private function get_contrast_color($hex) {
@@ -259,18 +262,9 @@ class HelloBarPlugin {
                         <th><label for="display_footer">Display Hello Bars at Footer</label></th>
                         <td><input type="checkbox" name="hello_bar_settings[display_footer]" id="display_footer" value="1" <?php checked(1, $settings['display_footer'] ?? 0); ?>></td>
                     </tr>
-                    <tr>
-                        <th><label for="bg_color">Background Color</label></th>
-                        <td><input type="color" name="hello_bar_settings[bg_color]" id="bg_color" value="<?php echo esc_attr($settings['bg_color'] ?? '#000000'); ?>"></td>
-                    </tr>
-                    <tr>
-                        <th><label for="cta_color">CTA Button Color</label></th>
-                        <td><input type="color" name="hello_bar_settings[cta_color]" id="cta_color" value="<?php echo esc_attr($settings['cta_color'] ?? '#0000ff'); ?>"></td>
-                    </tr>
                 </table>
                 <?php submit_button(); ?>
             </form>
-            <p><em>Individual Hello Bar messages and CTAs are managed under "Hello Bars".</em></p>
         </div>
         <?php
     }
@@ -279,8 +273,6 @@ class HelloBarPlugin {
         $output = [];
         $output['display_top'] = !empty($input['display_top']) ? 1 : 0;
         $output['display_footer'] = !empty($input['display_footer']) ? 1 : 0;
-        $output['bg_color'] = sanitize_hex_color($input['bg_color']);
-        $output['cta_color'] = sanitize_hex_color($input['cta_color']);
         return $output;
     }
 
