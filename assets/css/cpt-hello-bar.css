@@ -8,7 +8,7 @@
 }
 .hello-bar { 
     width: 100%; 
-    padding: 12px; 
+    padding: 8px; 
     text-align: center; 
     font-size: 18px;
 }
@@ -19,6 +19,8 @@
     text-decoration: none; 
     border-radius: 3px; 
     margin-left: 20px; 
+    font-weight: 600;
+    text-wrap: nowrap;
 }
 
 .hello-bar-top { top: 0; }
@@ -89,9 +91,12 @@
         display: inline;
     }
     .hello-bar .cta-button { 
-        padding: 10px 15px;
+        padding: 5px 10px;
+        display: block;
+        margin: 5px auto 0;
+        width: max-content;
     }
     .hello-bar {
-        padding: 20px;
+        padding: 10px;
     }
 }

@@ -102,6 +102,10 @@ class HelloBarPlugin {
                 <td><input type="color" name="hello_bar_settings[bg_color]" id="bg_color" value="<?php echo esc_attr($meta['bg_color'] ?? '#000000'); ?>"></td>
             </tr>
             <tr>
+                <th><label for="cta_enabled">No Button, show link as underlined text</label></th>
+                <td><input type="checkbox" name="hello_bar_settings[cta_enabled]" id="cta_enabled" value="1" <?php checked($meta['cta_enabled'] ?? 0, 1); ?>></td>
+            </tr>
+            <tr>
                 <th><label for="cta_color">CTA Button Color</label></th>
                 <td><input type="color" name="hello_bar_settings[cta_color]" id="cta_color" value="<?php echo esc_attr($meta['cta_color'] ?? '#0000ff'); ?>"></td>
             </tr>
@@ -128,6 +132,7 @@ class HelloBarPlugin {
             'cta_link' => esc_url_raw($input['cta_link']),
             'cta_color' => esc_url_raw($input['cta_color']),
             'bg_color' => esc_url_raw($input['bg_color']),
+            'cta_enabled' => isset($input['cta_enabled']) ? 1 : 0,
         ];
         update_post_meta($post_id, '_hello_bar_settings', $output);
     }
@@ -220,8 +225,26 @@ class HelloBarPlugin {
         $cta_link = esc_url($settings['cta_link'] ?? '#');
         $message_desktop = esc_html($settings['message_desktop'] ?? 'Default Desktop Message');
         $message_mobile = esc_html($settings['message_mobile'] ?? 'Default Mobile Message');
+        $cta_enabled = $settings['cta_enabled'] ?? 0;
 
-        return "<div class='{$class}' style='background-color: {$bg_color}; color: {$contrast_color}'><span class='hello-bar-desktop'>{$message_desktop}</span><span class='hello-bar-mobile'>{$message_mobile}</span><a href='{$cta_link}' class='cta-button' style=' background-color: {$cta_color}; color: {$cta_contrast};'>{$cta_label}</a></div>";
+        // Initialize the HTML output
+        $html = "<div class='{$class}' style='background-color: {$bg_color}; color: {$contrast_color}'>";
+
+        // Add desktop and mobile messages with conditional underlining
+        $text_style = $cta_enabled ? '' : 'text-decoration: underline;';
+        $html .= "<span class='hello-bar-desktop'>{$message_desktop}</span>";
+        $html .= "<span class='hello-bar-mobile'>{$message_mobile}</span>";
+
+        // Add CTA button only if enabled
+        if ($cta_enabled) {
+            $html .= "<a href='{$cta_link}' class='cta-button' style='background-color: {$cta_color}; color: {$cta_contrast};'>{$cta_label}</a>";
+        } else {
+            $html .= "<a href='{$cta_link}' class='cta-button' style='padding:0; {$text_style}; color: {$contrast_color};'>{$cta_label}</a>";
+        }
+
+        $html .= "</div>";
+
+        return $html;
     }
 
     private function get_contrast_color($hex) {
