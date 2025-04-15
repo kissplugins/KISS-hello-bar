@@ -28,7 +28,7 @@
 
 .hello-bar-slider.swiper-container { 
     overflow: hidden; 
-    position: relative; 
+    position: sticky; 
     z-index: 11;
 }
 
