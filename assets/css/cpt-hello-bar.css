@@ -96,7 +96,12 @@
         margin: 5px auto 0;
         width: max-content;
     }
+    .hello-bar .cta-button.underline-link{
+        line-height:15px;
+        margin:2px auto 10px auto;
+    }
     .hello-bar {
         padding: 10px;
+        font-size: 16px;
     }
 }

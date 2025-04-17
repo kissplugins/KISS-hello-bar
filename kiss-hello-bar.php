@@ -251,7 +251,7 @@ class HelloBarPlugin {
         if ($cta_enabled) {
             $html .= "<a href='{$cta_link}' class='cta-button' style='background-color: {$cta_bg_color}; color: {$cta_text_color};'>{$cta_label}</a>";
         } else {
-            $html .= "<a href='{$cta_link}' class='cta-button' style='padding:0; {$text_style}; color: {$cta_text_color};'>{$cta_label}</a>";
+            $html .= "<a href='{$cta_link}' class='cta-button underline-link' style='padding:0; {$text_style}; color: {$cta_text_color};'>{$cta_label}</a>";
         }
 
         $html .= "</div>";
