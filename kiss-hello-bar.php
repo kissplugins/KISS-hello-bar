@@ -2,7 +2,7 @@
 /**
  * Plugin Name: KISS - Hello Bar
  * Description: Displays a customizable hello bar with a message and a CTA button on the front end.
- * Version: 1.0.8
+ * Version: 1.0.9
  * Author: Hypercart
  * Author URI: https://kissplugins.com
  * Text Domain: kiss-hello-bar
@@ -32,7 +32,7 @@ class HelloBarPlugin {
         add_action('admin_menu', [$this, 'create_settings_page']);
         add_action('admin_init', [$this, 'register_settings']);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_hello_bar_scripts']);
-        add_action('wp_body_open', [$this, 'display_hello_bar_slider']);
+        add_action('wp_head', [$this, 'display_hello_bar_slider']);
         add_action('wp_footer', [$this, 'display_footer_hello_bar_slider']);
         add_filter('plugin_action_links_' . plugin_basename(__FILE__), [$this, 'add_settings_link']);
         add_action('add_meta_boxes', [$this, 'add_hello_bar_meta_box']);
@@ -82,8 +82,20 @@ class HelloBarPlugin {
         ?>
         <table class="form-table">
             <tr>
-                <th><label for="message">Message</label></th>
-                <td><input type="text" name="hello_bar_settings[message]" id="message" value="<?php echo esc_attr($meta['message'] ?? 'Default Message'); ?>" class="regular-text"></td>
+                <th><label for="bg_color">Background Color</label></th>
+                <td><input type="color" name="hello_bar_settings[bg_color]" id="bg_color" value="<?php echo esc_attr($meta['bg_color'] ?? '#000000'); ?>"></td>
+            </tr>
+            <tr>
+                <th><label for="text_color">Text Color</label></th>
+                <td><input type="color" name="hello_bar_settings[text_color]" id="text_color" value="<?php echo esc_attr($meta['text_color'] ?? '#0000ff'); ?>"></td>
+            </tr>
+            <tr>
+                <th><label for="message_desktop">Desktop Message</label></th>
+                <td><input type="text" name="hello_bar_settings[message_desktop]" id="message_desktop" value="<?php echo esc_attr($meta['message_desktop'] ?? 'Default Desktop Message'); ?>" class="regular-text"></td>
+            </tr>
+            <tr>
+                <th><label for="message_mobile">Mobile Message</label></th>
+                <td><input type="text" name="hello_bar_settings[message_mobile]" id="message_mobile" value="<?php echo esc_attr($meta['message_mobile'] ?? 'Default Mobile Message'); ?>" class="regular-text"></td>
             </tr>
             <tr>
                 <th><label for="cta_label">CTA Button Label</label></th>
@@ -93,8 +105,19 @@ class HelloBarPlugin {
                 <th><label for="cta_link">CTA Button Link</label></th>
                 <td><input type="url" name="hello_bar_settings[cta_link]" id="cta_link" value="<?php echo esc_attr($meta['cta_link'] ?? ''); ?>" class="regular-text"></td>
             </tr>
+            <tr>
+                <th><label for="cta_enabled">Show as button</label></th>
+                <td><input type="checkbox" name="hello_bar_settings[cta_enabled]" id="cta_enabled" value="1" <?php checked($meta['cta_enabled'] ?? 0, 1); ?>></td>
+            </tr>
+            <tr>
+                <th><label for="cta_bg_color">CTA button background color</label></th>
+                <td><input type="color" name="hello_bar_settings[cta_bg_color]" id="cta_bg_color" value="<?php echo esc_attr($meta['cta_bg_color'] ?? '#0000ff'); ?>"></td>
+            </tr>
+            <tr>
+                <th><label for="cta_text_color">CTA button text color</label></th>
+                <td><input type="color" name="hello_bar_settings[cta_text_color]" id="cta_text_color" value="<?php echo esc_attr($meta['cta_text_color'] ?? '#0000ff'); ?>"></td>
+            </tr>
         </table>
-        <p><em>Display options and colors are managed globally under "Settings > Hello Bar".</em></p>
         <?php
     }
 
@@ -111,9 +134,15 @@ class HelloBarPlugin {
 
         $input = $_POST['hello_bar_settings'] ?? [];
         $output = [
-            'message' => sanitize_text_field($input['message']),
+            'bg_color' => esc_url_raw($input['bg_color']),
+            'text_color' => esc_url_raw($input['text_color']),
+            'message_desktop' => sanitize_textarea_field($input['message_desktop']),
+            'message_mobile' => sanitize_textarea_field($input['message_mobile']),
             'cta_label' => sanitize_text_field($input['cta_label']),
             'cta_link' => esc_url_raw($input['cta_link']),
+            'cta_text_color' => esc_url_raw($input['cta_text_color']),
+            'cta_bg_color' => esc_url_raw($input['cta_bg_color']),
+            'cta_enabled' => isset($input['cta_enabled']) ? 1 : 0,
         ];
         update_post_meta($post_id, '_hello_bar_settings', $output);
     }
@@ -139,18 +168,6 @@ class HelloBarPlugin {
         wp_enqueue_style('cpt-hello-bar-css', plugin_dir_url(__FILE__)  . '/assets/css/cpt-hello-bar.css');
         wp_enqueue_script('cpt-hello-bar-js', plugin_dir_url(__FILE__) . '/assets/js/cpt-hello-bar.js', array('hello-bar-swiper-js'), null, true);
 
-        $global_settings = get_option(self::OPTION_NAME, []);
-        $bg_color = $global_settings['bg_color'] ?? '#000000';
-        $cta_color = $global_settings['cta_color'] ?? '#0000ff';
-        $contrast_color = $this->get_contrast_color($bg_color);
-        $cta_contrast = $this->get_contrast_color($cta_color);
-
-        $cpt_hello_bar_inline_css = "
-            .hello-bar { background-color: {$bg_color}; color: {$contrast_color}; }
-            .hello-bar .cta-button { background-color: {$cta_color}; color: {$cta_contrast}; }
-            .swiper-button-next, .swiper-button-prev, .swiper-button-next-footer, .swiper-button-prev-footer { color: {$contrast_color};}
-        ";
-        wp_add_inline_style('cpt-hello-bar-css', $cpt_hello_bar_inline_css);
     }
 
     public function display_hello_bar_slider() {
@@ -208,17 +225,38 @@ class HelloBarPlugin {
     }
 
     private function get_hello_bar_html($settings, $class) {
-        $global_settings = get_option(self::OPTION_NAME, []);
-        $bg_color = $global_settings['bg_color'] ?? '#000000';
-        $cta_color = $global_settings['cta_color'] ?? '#0000ff';
+        //$global_settings = get_option(self::OPTION_NAME, []);
+        $bg_color = $settings['bg_color'] ?? '#000000';
+        $text_color = $settings['text_color'] ?? '#0000ff';
+        $cta_text_color = $settings['cta_text_color'] ?? '#0000ff';
+        $cta_bg_color = $settings['cta_bg_color'] ?? '#0000ff';
         $contrast_color = $this->get_contrast_color($bg_color);
         $cta_contrast = $this->get_contrast_color($cta_color);
 
         $cta_label = esc_html($settings['cta_label'] ?? 'Click Me');
         $cta_link = esc_url($settings['cta_link'] ?? '#');
-        $message = esc_html($settings['message'] ?? 'Default Message');
+        $message_desktop = esc_html($settings['message_desktop'] ?? 'Default Desktop Message');
+        $message_mobile = esc_html($settings['message_mobile'] ?? 'Default Mobile Message');
+        $cta_enabled = $settings['cta_enabled'] ?? 0;
 
-        return "<div class='{$class}'><span>{$message}</span><a href='{$cta_link}' class='cta-button'>{$cta_label}</a></div>";
+        // Initialize the HTML output
+        $html = "<div class='{$class}' style='background-color: {$bg_color}; color: {$text_color}'>";
+
+        // Add desktop and mobile messages with conditional underlining
+        $text_style = $cta_enabled ? '' : 'text-decoration: underline;';
+        $html .= "<span class='hello-bar-desktop'>{$message_desktop}</span>";
+        $html .= "<span class='hello-bar-mobile'>{$message_mobile}</span>";
+
+        // Add CTA button only if enabled
+        if ($cta_enabled) {
+            $html .= "<a href='{$cta_link}' class='cta-button' style='background-color: {$cta_bg_color}; color: {$cta_text_color};'>{$cta_label}</a>";
+        } else {
+            $html .= "<a href='{$cta_link}' class='cta-button underline-link' style='padding:0; {$text_style}; color: {$cta_text_color};'>{$cta_label}</a>";
+        }
+
+        $html .= "</div>";
+
+        return $html;
     }
 
     private function get_contrast_color($hex) {
@@ -229,9 +267,10 @@ class HelloBarPlugin {
     }
 
     public function create_settings_page() {
-        add_options_page(
+        add_submenu_page(
+            'edit.php?post_type=hello_bar',
             'Hello Bar Settings',
-            'Hello Bar',
+            'Settings',
             'manage_options',
             'hello-bar-settings',
             [$this, 'settings_page_content']
@@ -258,18 +297,9 @@ class HelloBarPlugin {
                         <th><label for="display_footer">Display Hello Bars at Footer</label></th>
                         <td><input type="checkbox" name="hello_bar_settings[display_footer]" id="display_footer" value="1" <?php checked(1, $settings['display_footer'] ?? 0); ?>></td>
                     </tr>
-                    <tr>
-                        <th><label for="bg_color">Background Color</label></th>
-                        <td><input type="color" name="hello_bar_settings[bg_color]" id="bg_color" value="<?php echo esc_attr($settings['bg_color'] ?? '#000000'); ?>"></td>
-                    </tr>
-                    <tr>
-                        <th><label for="cta_color">CTA Button Color</label></th>
-                        <td><input type="color" name="hello_bar_settings[cta_color]" id="cta_color" value="<?php echo esc_attr($settings['cta_color'] ?? '#0000ff'); ?>"></td>
-                    </tr>
                 </table>
                 <?php submit_button(); ?>
             </form>
-            <p><em>Individual Hello Bar messages and CTAs are managed under "Hello Bars".</em></p>
         </div>
         <?php
     }
@@ -278,8 +308,6 @@ class HelloBarPlugin {
         $output = [];
         $output['display_top'] = !empty($input['display_top']) ? 1 : 0;
         $output['display_footer'] = !empty($input['display_footer']) ? 1 : 0;
-        $output['bg_color'] = sanitize_hex_color($input['bg_color']);
-        $output['cta_color'] = sanitize_hex_color($input['cta_color']);
         return $output;
     }
 
