@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
             prevEl: '.swiper-button-prev-top',
         },
     });
-
-    initFooterSwiper();
+    if((typeof helloBarfooterDisplay !== 'undefined' && helloBarfooterDisplay === true)){
+        initFooterSwiper();
+    }
 });

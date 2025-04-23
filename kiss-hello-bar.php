@@ -190,6 +190,8 @@ class HelloBarPlugin {
 
     public function display_footer_hello_bar_slider() {
         $global_settings = get_option(self::OPTION_NAME, []);
+        $is_footer_displayed = !empty($global_settings['display_footer']);
+        echo '<script>var helloBarfooterDisplay = ' . ($is_footer_displayed ? 'true' : 'false') . ';</script>';
         if (!empty($global_settings['display_footer'])) {
             $hello_bars = $this->get_hello_bars();
             if (!empty($hello_bars)) {
