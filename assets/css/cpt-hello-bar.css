@@ -104,4 +104,7 @@
         padding: 10px;
         font-size: 16px;
     }
+    .mobile-toggled .hello-bar-slider.swiper-container { 
+        z-index: 10;
+    }
 }
