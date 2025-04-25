@@ -26,10 +26,16 @@
 .hello-bar-top { top: 0; }
 .hello-bar-footer { bottom: 0; }
 
-.hello-bar-slider.swiper-container { 
-    overflow: hidden; 
-    position: sticky; 
-    z-index: 11;
+.hello-bar-slider.swiper-container {
+  position: sticky;       /* or fixed if you want it always visible */
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100vw;
+  max-width: 100vw;
+  margin-left: calc(-50vw + 50%);  /* key line to center and break out of container */
+  z-index: 11;
+  overflow: hidden;
 }
 
 .hello-bar-slider .swiper-button-next, 
